@@ -1,6 +1,6 @@
 # AvatarCraft
 
-## [Website](https://avatar-craft.github.io/)| [Arixv]() | [Video](https://www.youtube.com/watch?v=aB4h6_WmW5s)
+## [Website](https://avatar-craft.github.io/)| [Arixv](https://arxiv.org/abs/2303.17606) | [Video](https://www.youtube.com/watch?v=aB4h6_WmW5s)
 
 ![teaser](asset/teaser.png)
 
