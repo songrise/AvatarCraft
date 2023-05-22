@@ -31,7 +31,7 @@ data
             |-- SMPL_NEUTRAL.pkl
 ```
 
-[**Compulsory**] Download our pretrained [bare SMPL ckpt](https://drive.google.com/file/d/1Exq0EO5WqtxXKJ41o97trqqBDYOOTUh7/view?usp=share_link), put it into `./ckpt` path.
+[**Compulsory**] Download our pretrained [bare SMPL ckpt](https://drive.google.com/file/d/1GRfc9fbiBLTqEP6dURaReyERT-Tzk127/view?usp=share_link), put it into `./ckpt` path.
 
 
 [**Optional**] If you would like to animate the generated avatar, you need sequence of SMPL poses. In our project, we use [AMASS](https://amass.is.tue.mpg.de/) dataset (SMPL+H) to generate the poses. Specifically, we use the SFU subset. We provide a [script](utils/convert_amass.py) to convert the AMASS dataset to our format. You may also use your own pose sequence.
@@ -45,7 +45,7 @@ use the following command to create an avatar. We test our code on A100-80G, if 
 python stylize.py --weights_path "ckpts/bare_smpl.pth.tar" --tgt_text "Hulk, photorealistic style" --exp_name "hulk" --batch_size 4096
 ```
 
-After creation, you can render the canonical avatar with following command:
+After creation, you can render the canonical avatar with following command. If you don't want to train your own, you can also use our generated [avatars](https://drive.google.com/drive/folders/1t31_QK6mV9dJyCRc4VMLNJ6q0c3NQX7Q?usp=share_link):
 ```
 python render_canonical.py --weights_path path/to/generated_avatar.pth.tar --exp_name "hulk" --render_h 256 --render_w 256
 ```
@@ -58,12 +58,13 @@ python render_wrap.py --weights_path path/to/generated_avatar.pth.tar --exp_name
 ```
 
 Use the following command to reshape the avatar. Specifically, you could interpolate the betas between two avatars. 
+
 ```
 python render_wrap.py --weights_path path/to/generated_avatar.pth.tar --exp_name "hulk" --render_type interp_pose --render_h 256 --render_w 256 --shape_from_path data/smpl_betas/betas_fat.pkl --shape_to_path data/smpl_betas/betas_skinny.pkl
 ```
 
 
-##Citation
+## Citation
 If you find our work useful in your research, please consider citing:
 ```
 @article{jiang2023avatarcraft,
