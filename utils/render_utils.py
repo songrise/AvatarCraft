@@ -30,7 +30,7 @@ from scipy.stats import beta
 import json
 import cv2 as cv
 
-import nerf_pytorch.run_nerf as run_nerf
+# import nerf_pytorch.run_nerf as run_nerf
 import gc
 ########DEBUG
 
@@ -718,99 +718,99 @@ def render_hybrid_avatar(net, cap, posed_verts, faces, Ts, rays_per_batch=32768,
         return total_rgb_map, total_depth_map
     return total_rgb_map
 
-def render_hybrid_avatar_llff(net, scene_kwargs, cap, posed_verts, faces, Ts, rays_per_batch=32768, samples_per_ray=64, importance_samples_per_ray=128, white_bkg=True, geo_threshold=DEFAULT_GEO_THRESH, return_depth=False, scene_scale:float = 1):
-    """
-    Render avatar(instant-nsr) with background(NeRF).
-    """
-    device = next(net.parameters()).device
+# def render_hybrid_avatar_llff(net, scene_kwargs, cap, posed_verts, faces, Ts, rays_per_batch=32768, samples_per_ray=64, importance_samples_per_ray=128, white_bkg=True, geo_threshold=DEFAULT_GEO_THRESH, return_depth=False, scene_scale:float = 1):
+#     """
+#     Render avatar(instant-nsr) with background(NeRF).
+#     """
+#     device = next(net.parameters()).device
 
  
 
-    with torch.set_grad_enabled(False):
-        coords = np.argwhere(np.ones(cap.shape))[:, ::-1]
-        origins, dirs = ray_utils.shot_rays(cap, coords)
-        total_rays = origins.shape[0]
-        total_rgb_map = []
-        total_depth_map = []
-        total_acc_map = []
-        # no fuse
-        # render bkg colors
-        H, W = cap.shape[0], cap.shape[1]
-        K, c2w = torch.from_numpy(cap.intrinsic_matrix).float().to(device), torch.from_numpy(cap.extrinsic_matrix).float().to(device)
-        if False:
-            # move the camera
-            T_move = np.array([[np.cos(-np.pi/12), 0, np.sin(-np.pi/12), -0.2],
-                              [0, 1, 0, -0.1],
-                              [-np.sin(-np.pi/12), 0, np.cos(-np.pi/12), 0.0],
-                              [0, 0, 0, 1]])
-            # T_move = np.array([[1, 0, 0, 0.],
-            #                     [0, 1, 0, 0.],
-            #                     [0, 0, 1, 0.2],
-            #                     [0, 0, 0, 1]])
-            c2w = torch.cat([c2w, torch.tensor([0,0,0,1]).float().to(device)[None,:]], dim=0)
-            c2w = torch.from_numpy(T_move).float().to(device) @ c2w
-            c2w = c2w[:3,:4]
-        bkg_rgb, bkg_disp, bkg_acc, bkg_depth, _ = run_nerf.render(H, W, K, chunk=8192*4, c2w=c2w, **scene_kwargs)
-        bkg_rgb_map = bkg_rgb.detach().cpu().numpy()
-        bkg_depth_map = bkg_depth.detach().cpu().numpy()
-        # normalize depth map
+#     with torch.set_grad_enabled(False):
+#         coords = np.argwhere(np.ones(cap.shape))[:, ::-1]
+#         origins, dirs = ray_utils.shot_rays(cap, coords)
+#         total_rays = origins.shape[0]
+#         total_rgb_map = []
+#         total_depth_map = []
+#         total_acc_map = []
+#         # no fuse
+#         # render bkg colors
+#         H, W = cap.shape[0], cap.shape[1]
+#         K, c2w = torch.from_numpy(cap.intrinsic_matrix).float().to(device), torch.from_numpy(cap.extrinsic_matrix).float().to(device)
+#         if False:
+#             # move the camera
+#             T_move = np.array([[np.cos(-np.pi/12), 0, np.sin(-np.pi/12), -0.2],
+#                               [0, 1, 0, -0.1],
+#                               [-np.sin(-np.pi/12), 0, np.cos(-np.pi/12), 0.0],
+#                               [0, 0, 0, 1]])
+#             # T_move = np.array([[1, 0, 0, 0.],
+#             #                     [0, 1, 0, 0.],
+#             #                     [0, 0, 1, 0.2],
+#             #                     [0, 0, 0, 1]])
+#             c2w = torch.cat([c2w, torch.tensor([0,0,0,1]).float().to(device)[None,:]], dim=0)
+#             c2w = torch.from_numpy(T_move).float().to(device) @ c2w
+#             c2w = c2w[:3,:4]
+#         bkg_rgb, bkg_disp, bkg_acc, bkg_depth, _ = run_nerf.render(H, W, K, chunk=8192*4, c2w=c2w, **scene_kwargs)
+#         bkg_rgb_map = bkg_rgb.detach().cpu().numpy()
+#         bkg_depth_map = bkg_depth.detach().cpu().numpy()
+#         # normalize depth map
 
-        # bkg_depth_map = bkg_depth_map * scene_scale 
-        # depth_map = np.zeros_like(depth_map)
-        # acc_map = np.zeros_like(depth_map)[:,None]
-        # acc_map = acc_map.repeat(3, axis=-1)
+#         # bkg_depth_map = bkg_depth_map * scene_scale 
+#         # depth_map = np.zeros_like(depth_map)
+#         # acc_map = np.zeros_like(depth_map)[:,None]
+#         # acc_map = acc_map.repeat(3, axis=-1)
 
-        for i in range(0, total_rays, rays_per_batch):
-            print(f'{i} / {total_rays}')
-            rgb_map = np.zeros_like(origins[i:i + rays_per_batch])
-            depth_map = np.zeros_like(origins[i:i + rays_per_batch, 0])
-            acc_map = np.zeros_like(origins[i:i + rays_per_batch, 0])
+#         for i in range(0, total_rays, rays_per_batch):
+#             print(f'{i} / {total_rays}')
+#             rgb_map = np.zeros_like(origins[i:i + rays_per_batch])
+#             depth_map = np.zeros_like(origins[i:i + rays_per_batch, 0])
+#             acc_map = np.zeros_like(origins[i:i + rays_per_batch, 0])
 
-            # this near and far should be the same as the one calculated in instant-nsr:run()
-            temp_near, temp_far = ray_utils.geometry_guided_near_far(origins[i:i + rays_per_batch], dirs[i:i + rays_per_batch], posed_verts, geo_threshold=geo_threshold)
+#             # this near and far should be the same as the one calculated in instant-nsr:run()
+#             temp_near, temp_far = ray_utils.geometry_guided_near_far(origins[i:i + rays_per_batch], dirs[i:i + rays_per_batch], posed_verts, geo_threshold=geo_threshold)
 
-            rays_o_batch = origins[i:i + rays_per_batch]
-            rays_d_batch = dirs[i:i + rays_per_batch]
+#             rays_o_batch = origins[i:i + rays_per_batch]
+#             rays_d_batch = dirs[i:i + rays_per_batch]
 
-            #!neus output here
-            background_rgb = select_background(rays_o_batch.shape, 0).to(device)
-            rays_o_batch, rays_d_batch = torch.from_numpy(rays_o_batch).float().to(device), torch.from_numpy(rays_d_batch).float().to(device)
-            #!HARDCODED Dec 09: 
-            rays_o_batch, rays_d_batch = rays_o_batch.unsqueeze(0), rays_d_batch.unsqueeze(0)
-            out = net.coarse_human_net.render(rays_o_batch, rays_d_batch, num_steps = 64, 
-                        upsample_steps = 0, bound = 1.6, staged=False, bg_color = background_rgb,
-                        cos_anneal_ratio = 1.0, normal_epsilon_ratio = 0.0, render_can = False,
-                        verts = posed_verts, faces = faces, Ts = Ts, perturb = 0, use_mesh_guide = True)
-            human_rgb_map = out['rgb'].squeeze().detach().cpu().numpy()
-            human_acc_map = out["weight_sum"].detach().cpu().numpy() 
-            human_depth_map = out["depth"].squeeze().detach().cpu().numpy()
-            # human_depth_map[human_depth_map<1e-2] = 1e5
-            human_depth_map = human_depth_map #/ cap.far['human']
-            human_depth_map[human_acc_map[:,0]<0.95] = 1.0 # set background depth to 1.0
-            human_depth_map[human_acc_map[:,0]>0.95] = 0.43
-            human_acc_map = human_acc_map.repeat(3, axis = -1)  # [Nrays, 3]
-            acc_map = human_acc_map
-            total_rgb_map.append(human_rgb_map)
-            total_depth_map.append(human_depth_map)
-            total_acc_map.append(human_acc_map)
-        human_rgb_map = np.concatenate(total_rgb_map).reshape(*cap.shape, -1)
-        human_depth_map = np.concatenate(total_depth_map).reshape(*cap.shape)
-        human_acc_map = np.concatenate(total_acc_map).reshape(*cap.shape, -1)
+#             #!neus output here
+#             background_rgb = select_background(rays_o_batch.shape, 0).to(device)
+#             rays_o_batch, rays_d_batch = torch.from_numpy(rays_o_batch).float().to(device), torch.from_numpy(rays_d_batch).float().to(device)
+#             #!HARDCODED Dec 09: 
+#             rays_o_batch, rays_d_batch = rays_o_batch.unsqueeze(0), rays_d_batch.unsqueeze(0)
+#             out = net.coarse_human_net.render(rays_o_batch, rays_d_batch, num_steps = 64, 
+#                         upsample_steps = 0, bound = 1.6, staged=False, bg_color = background_rgb,
+#                         cos_anneal_ratio = 1.0, normal_epsilon_ratio = 0.0, render_can = False,
+#                         verts = posed_verts, faces = faces, Ts = Ts, perturb = 0, use_mesh_guide = True)
+#             human_rgb_map = out['rgb'].squeeze().detach().cpu().numpy()
+#             human_acc_map = out["weight_sum"].detach().cpu().numpy() 
+#             human_depth_map = out["depth"].squeeze().detach().cpu().numpy()
+#             # human_depth_map[human_depth_map<1e-2] = 1e5
+#             human_depth_map = human_depth_map #/ cap.far['human']
+#             human_depth_map[human_acc_map[:,0]<0.95] = 1.0 # set background depth to 1.0
+#             human_depth_map[human_acc_map[:,0]>0.95] = 0.43
+#             human_acc_map = human_acc_map.repeat(3, axis = -1)  # [Nrays, 3]
+#             acc_map = human_acc_map
+#             total_rgb_map.append(human_rgb_map)
+#             total_depth_map.append(human_depth_map)
+#             total_acc_map.append(human_acc_map)
+#         human_rgb_map = np.concatenate(total_rgb_map).reshape(*cap.shape, -1)
+#         human_depth_map = np.concatenate(total_depth_map).reshape(*cap.shape)
+#         human_acc_map = np.concatenate(total_acc_map).reshape(*cap.shape, -1)
 
-        # alpha-blend background and avatar according to the ray opacity
-        # rgb_map = human_rgb_map * human_acc_map + (1. - human_acc_map)*bkg_rgb_map
-        # First,  only solid part of human should be rendered
-        human_rgb_map = human_rgb_map * human_acc_map
-        # Then, only visible part should be rendered
-        rgb_map = composite_by_depth(bkg_rgb_map, human_rgb_map, bkg_depth_map, human_depth_map)
-        depth_map = np.minimum(bkg_depth_map, human_depth_map)
-        # depth_map = human_depth_map
-        # debug_utils.dump_tensor(total_depth_map, 'total_depth_map.pkl')
-        # total_acc_map = np.concatenate(total_acc_map).reshape(*cap.shape,-1)
-        # debug_utils.dump_tensor(total_acc_map, 'total_acc_map.pkl')
-    if return_depth:
-        return rgb_map, depth_map
-    return total_rgb_map
+#         # alpha-blend background and avatar according to the ray opacity
+#         # rgb_map = human_rgb_map * human_acc_map + (1. - human_acc_map)*bkg_rgb_map
+#         # First,  only solid part of human should be rendered
+#         human_rgb_map = human_rgb_map * human_acc_map
+#         # Then, only visible part should be rendered
+#         rgb_map = composite_by_depth(bkg_rgb_map, human_rgb_map, bkg_depth_map, human_depth_map)
+#         depth_map = np.minimum(bkg_depth_map, human_depth_map)
+#         # depth_map = human_depth_map
+#         # debug_utils.dump_tensor(total_depth_map, 'total_depth_map.pkl')
+#         # total_acc_map = np.concatenate(total_acc_map).reshape(*cap.shape,-1)
+#         # debug_utils.dump_tensor(total_acc_map, 'total_acc_map.pkl')
+#     if return_depth:
+#         return rgb_map, depth_map
+#     return total_rgb_map
 
 def render_hybrid_nerf_multi_persons(bkg_model, cap, human_models, posed_verts, faces, Ts, rays_per_batch=32768, samples_per_ray=64, importance_samples_per_ray=128, white_bkg=True, geo_threshold=DEFAULT_GEO_THRESH, return_depth=False):
     device = next(bkg_model.parameters()).device

@@ -1,6 +1,6 @@
 # AvatarCraft: Transforming Text into Neural Human Avatars with Parameterized Shape and Pose Control
 
-## [Website](https://avatar-craft.github.io/)| [Arixv](https://arxiv.org/abs/2303.17606) | [Video](https://www.youtube.com/watch?v=aB4h6_WmW5s) | [Data](https://drive.google.com/drive/folders/1fKosS6JfidXF-XO8ai15Qb18KpKzQQ5q?usp=sharing)
+## [Website](https://avatar-craft.github.io/)| [Arxiv](https://arxiv.org/abs/2303.17606) | [Video](https://www.youtube.com/watch?v=aB4h6_WmW5s) | [Data](https://drive.google.com/drive/folders/1fKosS6JfidXF-XO8ai15Qb18KpKzQQ5q?usp=sharing)
 
 ![teaser](asset/teaser.png)
 
@@ -21,8 +21,10 @@ conda install -c fvcore -c iopath -c conda-forge fvcore iopath;
 conda install -c bottler nvidiacub;
 conda install pytorch3d -c pytorch3d;
 conda install -c conda-forge igl;
-pip install opencv-python joblib open3d imageio==2.25.0 tensorboardX chumpy lpips scikit-image ipython matplotlib einops trimesh pymcubes opencv-python;
-pip install diffusers transformers;
+pip install opencv-python joblib open3d imageio==2.25.0 tensorboardX chumpy  scikit-image ipython matplotlib einops trimesh pymcubes;
+pip install diffusers==0.16.1 transformers==4.29.1;
+mkdir data
+mkdir ckpts
 ```
 ## Data Setup
 [**Compulsory**] Register and download the [SMPL](https://smpl.is.tue.mpg.de/) model, put it under `./data` path:
@@ -33,14 +35,21 @@ data
             |-- SMPL_NEUTRAL.pkl
 ```
 
-[**Compulsory**] Download our pretrained [bare SMPL ckpt](https://drive.google.com/file/d/1GRfc9fbiBLTqEP6dURaReyERT-Tzk127/view?usp=share_link), and put it into `./ckpt` path.
+
+[**Compulsory**] Create an access token on [Huggingface](https://huggingface.co/settings/tokens) for accessing the pretrained diffusion model. Use the token to login with the following command:
+```
+huggingface-cli login
+```
+
+[**Compulsory**] Download our pretrained [bare SMPL ckpt](https://drive.google.com/file/d/1GRfc9fbiBLTqEP6dURaReyERT-Tzk127/view?usp=share_link), and put it into `./ckpts` path.
+
 
 
 [**Optional**] If you would like to animate the generated avatar, you need a sequence of SMPL poses. In our project, we use [AMASS](https://amass.is.tue.mpg.de/) dataset (SMPL+H) to generate the poses. Specifically, we have used the SFU subset in our paper and video. We can't redistribute the dataset, but we provide a [script](utils/convert_amass.py) to for you to convert the AMASS format to ours. You need to download and process by yourself. Alternatively, you may also use your own SMPL pose sequence.
 
 
 ## Avatar Creation
-use the following command to create an avatar with text prompt. We test our code on A100-80G, if you encounter OOM error, please reduce the batch size.
+use the following command to create an avatar with text prompt. We test our code on A100-80G, if you encounter OOM error, please reduce the batch size. Note: for the first time running, it will take a while to compile the cuda operators.
 
 ```
 python stylize.py --weights_path "ckpts/bare_smpl.pth.tar" --tgt_text "Hulk, photorealistic style" --exp_name "hulk" --batch_size 4096
