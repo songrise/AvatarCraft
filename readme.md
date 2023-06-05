@@ -49,7 +49,9 @@ huggingface-cli login
 
 
 ## Avatar Creation
-use the following command to create an avatar with text prompt. We test our code on A100-80G, if you encounter OOM error, please reduce the batch size. Note: for the first time running, it will take a while to compile the cuda operators.
+use the following command to create an avatar with text prompt. We test our code on A100-80G and RTX3090-24G, if you encounter OOM error, please reduce the batch size. For the prompt, our suggestion is that you provide as detailed description as possible. Otherwise you may not get reasonable result due to the high variance of SDS loss. 
+
+Note: for the first time running, it will take a while to compile the CUDA operators, do not kill the process.
 
 ```
 python stylize.py --weights_path "ckpts/bare_smpl.pth.tar" --tgt_text "Hulk, photorealistic style" --exp_name "hulk" --batch_size 4096
