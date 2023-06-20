@@ -31,7 +31,7 @@ def main_reconstruct(opt):
     utils.print_notification('reconstruct the canonical view of a human.')
     utils.fix_randomness(42)
     device = torch.device('cuda' if opt.use_cuda else 'cpu')
-    #! Sep 28: Check for canonical setting
+
 
     nerf = instant_nsr.NeRFNetwork()
     nerf = nerf.to(device)
@@ -39,13 +39,12 @@ def main_reconstruct(opt):
 
     ###prepare data####
 
-    #! Sep 25: load poses from pickled file
-    #! Oct 01: generate cam pose in runtime
+
     H, W = opt.render_h, opt.render_w
 
 
 
-    #! Dec 09: instant-nsr opt
+
     optimizer = torch.optim.Adam(nerf.parameters(), lr=5e-4, betas=(0.9, 0.99), eps=1e-15)
     #!HARDCODED Oct 02: decay to half 
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=opt.epochs, eta_min=opt.lr//20)

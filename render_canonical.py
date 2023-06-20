@@ -29,7 +29,7 @@ import pickle
 import einops
 import models.instant_nsr as instant_nsr
 
-#! Sep 25:  Overwrite for large human
+
 # CANONICAL_CAMERA_DIST_VAL = 1.3 # for larger human in paper
 CANONICAL_CAMERA_DIST_VAL = 1.7  # for supplementary video
 

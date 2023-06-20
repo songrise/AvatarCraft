@@ -680,10 +680,10 @@ def render_hybrid_avatar(net, cap, posed_verts, faces, Ts, rays_per_batch=32768,
                 rays_o_batch = origins[i:i + rays_per_batch]
                 rays_d_batch = dirs[i:i + rays_per_batch]
 
-                #!neus output here
+
                 background_rgb = select_background(rays_o_batch.shape, 0).to(device)
                 rays_o_batch, rays_d_batch = torch.from_numpy(rays_o_batch).float().to(device), torch.from_numpy(rays_d_batch).float().to(device)
-                #!HARDCODED Dec 09: 
+
                 rays_o_batch, rays_d_batch = rays_o_batch.unsqueeze(0), rays_d_batch.unsqueeze(0)
                 out = net.coarse_human_net.render(rays_o_batch, rays_d_batch, num_steps = 64, 
                             upsample_steps = 0, bound = 1.6, staged=False, bg_color = background_rgb,

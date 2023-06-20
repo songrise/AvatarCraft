@@ -15,15 +15,9 @@ import mcubes
 from typing import List
 from encoder import get_encoder
 
-#! Dec 08: remove this depencendy after debug
-# from multires_hash_encoding.modules import (
-#     MultiresEncoding,
-#     MultiresEncodingConfig,
-#     ViewEncoding,
-#     MLP,
-# )
 
-# from icecream import ic
+
+
 
 
 def extract_fields(bound_min, bound_max, resolution, query_func, device):
@@ -119,10 +113,6 @@ class SDFNetwork(nn.Module):
         #TODO Dec 03: Consider whether to move it out of this module
         embed_fn, input_ch = get_encoder(encoder_type, encoder_config)
 
-        # #!HARDCODED Dec 08: test another hash impl
-        # multires_cfg = MultiresEncodingConfig()
-        # encoding_size = multires_cfg.features * multires_cfg.nlevels
-        # embed_fn, input_ch = MultiresEncoding(**vars(multires_cfg)), encoding_size
 
 
         self.embed_fn_fine = embed_fn

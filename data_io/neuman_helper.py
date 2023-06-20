@@ -266,14 +266,13 @@ class NeuManReader():
                     out[k] = None
             return out
         
-        
-        #! Jan 11: load rest pose in replace of the hard-coded da-pose
+
         if rest_pose is not None:
             with open(rest_pose, 'rb') as f:
                 rest_pose = np.load(f).astype(np.float32)
 
 
-        #! Jan 11: load rest pose in replace of the hard-coded da-pose
+ 
         if rest_pose is not None:
             with open(rest_pose, 'rb') as f:
                 rest_pose = np.load(f).astype(np.float32)
@@ -345,7 +344,6 @@ class NeuManReader():
         return smpls, world_verts, static_verts, Ts
 
   
-   #! Jan 11: modified read_smpls implementation for driving avatarCLIP data
     @classmethod
     def read_smpls_avatar(cls, scene_dir, scale=1, smpl_type='romp',rest_pose = None, poses = None):
         def extract_smpl_at_frame(raw_smpl, frame_id):
@@ -356,8 +354,7 @@ class NeuManReader():
                 except:
                     out[k] = None
             return out
-        
-        #! Jan 11: load rest pose in replace of the hard-coded da-pose
+
         if rest_pose is not None:
             with open(rest_pose, 'rb') as f:
                 rest_pose = np.load(f).astype(np.float32)
@@ -381,7 +378,7 @@ class NeuManReader():
         # v_shaped,_ , __, ___ = utils.readOBJ("/root/autodl-tmp/NeuMan/data/avartar_clip/a_3d_rendering_of_a_strong_man_in_unreal_engine.obj")
         v_shaped,_ , __, ___ = utils.readOBJ("/workspace/songrise/NeuMan/data/shaped_v/fat.obj")
         v_shaped = np.expand_dims(v_shaped, axis=0)
-        #!HARDCODED Feb 12:  for test t pose
+ 
         # rest_pose = np.zeros_like(rest_pose)
         rest_pose[:, 0] = 0.0
         # pose_path = "/workspace/songrise/NeuMan/debug/neural_actor.pkl"
@@ -426,7 +423,7 @@ class NeuManReader():
             )
 
             # all_betas.append(rand_beta)
-            #! Jan 11: use special version for avatarCLIP
+
             _, T_t2rest, delta_v = body_model.verts_transformations(
                 return_tensor=False,
                 poses = da_smpl, 

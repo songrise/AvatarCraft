@@ -160,7 +160,7 @@ class Joiner(nn.Module):
         self.pos_pe = pos_pe
         self.dir_pe = dir_pe
         self.nerf = nerf
-        #! Sep 30: register backward hook to save the intermediate values
+
         # for name, module in self.nerf.named_modules():
         #     if isinstance(module, nn.Linear):
         #         module.register_backward_hook(self.backward_hook)

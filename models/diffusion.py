@@ -375,7 +375,7 @@ if __name__ == '__main__':
     prompt_ = "front view of the body of st, photorealistic style."
     imgs = []
     # fix_randomness(42)
-    #! Nov 03: generate multiple images
+
     for _ in range(4):
         img = sd.prompt_to_img(prompt_, 512, 512, opt.steps)
         img = img / 255.

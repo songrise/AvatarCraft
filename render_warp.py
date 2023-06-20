@@ -130,7 +130,6 @@ def calc_local_trans(scale=1, rest_pose=None, render_type: str = "animate", pose
     generate a sequence of SMPL mesh and inverse transformation for warping the canonical NeuS.
     """
 
-    #! Jan 11: load rest pose in replace of the hard-coded da-pose
     if rest_pose is not None:
         with open(rest_pose, 'rb') as f:
             rest_pose = np.load(f).astype(np.float32)
@@ -147,7 +146,7 @@ def calc_local_trans(scale=1, rest_pose=None, render_type: str = "animate", pose
 
     rest_pose[:, 0] = 0.0  # manually set the root joint to be 0
 
-    ###########interpolation
+    # interpolation
     zero_shape = np.zeros((1, 10)).astype(np.float32)
     zero_pose = np.zeros((1, 72)).astype(np.float32)
     # how many interval for interpolate betas
@@ -173,7 +172,7 @@ def calc_local_trans(scale=1, rest_pose=None, render_type: str = "animate", pose
         da_smpl[2] = np.array([0, 0, -1.0])
         da_smpl = da_smpl.reshape(1, -1)  # (1, 72)
 
-        #transformation from t-pose to articulation pose
+        # transformation from t-pose to articulation pose
         _, T_t2pose, __ = body_model.verts_transformations(
             return_tensor=False,
             poses=poses[i, ...][None],
@@ -181,7 +180,7 @@ def calc_local_trans(scale=1, rest_pose=None, render_type: str = "animate", pose
             concat_joints=True
         )
 
-        #transformation for t-pose to the canonical da-pose
+        # transformation for t-pose to the canonical da-pose
         v0, T_t2rest, _ = body_model.verts_transformations(
             return_tensor=False,
             poses=da_smpl,

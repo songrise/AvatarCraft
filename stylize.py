@@ -22,7 +22,7 @@ from tqdm import  trange
 import einops
 import random
 
-#! Sep 25:  Overwrite for larger human
+
 ####DEBUG Variables######
 STYLE_CANONICAL = True
 fix_geo = False
@@ -36,7 +36,7 @@ class Trainer():
         self.opt = opt
 
         self.device = torch.device('cuda' if opt.use_cuda else 'cpu')
-        #! Sep 28: Check for canonical setting
+  
         self.load_scene()
         self.net_gt, self.net_style = self.setup_model()
         self.loss = self.setup_loss()
@@ -132,13 +132,13 @@ class Trainer():
 
 
                     #!########Backward#########
-                    #! Oct 24: Nerf-Art style gradient checkpointing
+                    # Nerf-Art style gradient checkpointing
                     rgb_global_grad = rgb_pred_global.grad.clone().detach()
                     rgb_global_grad = einops.rearrange(rgb_global_grad, "1 c h w -> (h w) c")
                     del rgb_pred_global
 
                     n_rays = train_h * train_w
-                    batch_size = min(opt.batch_size, n_rays) #!HARDCODED Nov 27: OK for A100-80
+                    batch_size = min(opt.batch_size, n_rays) 
                     avg_eikonal = []           
                     self.optimizer.zero_grad()
 
@@ -172,7 +172,7 @@ class Trainer():
 
                             if opt.implicit_model == "neus": #if do mask-based geo reg
                                 raise NotImplementedError
-                            #! Dec 10: instant nsr geo reg
+
                             if opt.implicit_model == "instant_nsr":
                                 rgb_gt_patch, eikonal_loss, extra_out = render_utils.render_instantnsr_naive(
                                     self.net_gt, rays_o_patch, rays_d_patch, 
@@ -357,7 +357,7 @@ class Trainer():
                 {"params": self.net_style.parameters(), "lr": self.opt.lr},
             ]
 
-        optimizer = torch.optim.Adam(optim_list)#! Sep 26: check the parameters
+        optimizer = torch.optim.Adam(optim_list)
         scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=opt.epochs//2, gamma=0.5)
 
         return optimizer, scheduler
@@ -395,7 +395,7 @@ if __name__ == "__main__":
     parser.add_argument('--stylize_head', default=True, type = options.str2bool, help= "whether to stylize head")
     parser.add_argument('--implicit_model', type = str, default = "instant_nsr", choices = ["neus", "instant_nsr"], help= "which implicit model to use")
     parser.add_argument('--batch_size', type = int, help= "maximum number of rays to be rendered together", default=4096)
-    #! Oct 05: to set up hw, use --render_h and --render_w instead.
+
 
     # parser.add_argument('--img_hw', default = [160, 160], type=list, help='image height and width')
     #clip loss related

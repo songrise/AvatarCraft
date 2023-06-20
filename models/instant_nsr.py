@@ -143,7 +143,7 @@ class NeRFRenderer(nn.Module):
 
         # sample steps
         near, far = near_far_from_bound(rays_o, rays_d, bound, type='cube')
-        #! depth test 
+        # depth test 
         if verts is not None and use_mesh_guide:
             #     if the ray intersects with the mesh, use the depth to guide the near and far‘
             near_bound, far_bound = near, far
@@ -241,7 +241,7 @@ class NeRFRenderer(nn.Module):
 
         # Equation 13 in NeuS
         alpha = ((prev_cdf - next_cdf + 1e-5) / (prev_cdf + 1e-5)).reshape(N, num_steps).clip(0.0, 1.0)
-        #! Feb 01: mask out off-surface points
+
         if alpha_mask is not None:
             if not isinstance(alpha_mask, torch.Tensor):
                 alpha_mask = torch.from_numpy(alpha_mask).to(alpha.device)
@@ -474,7 +474,7 @@ class NeRFRenderer(nn.Module):
 
         return z_vals, sdf
 
-#! Dec 09: ----------Below is model definition----------------
+#! ----------Below is model definition----------------
 class NeRFNetwork(NeRFRenderer):
     def __init__(self,
                  encoding="hashgrid",
@@ -726,7 +726,7 @@ class SingleVarianceNetwork(nn.Module):
         return torch.ones([len(x), 1], device=self.variance.device) * torch.exp(self.variance * 10.0)
 
 
-#! Dec 09: CODE form NeuS
+
 
 def extract_fields(bound_min, bound_max, resolution, query_func):
     N = 256
