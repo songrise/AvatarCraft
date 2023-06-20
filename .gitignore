@@ -35,6 +35,5 @@ nerf_pytorch/
 instruction/
 
 render_composite.py
-render_warp.py
 *.sh
 .DS_Store

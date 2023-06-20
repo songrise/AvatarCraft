@@ -6,26 +6,27 @@ import os
 import cv2 as cv
 from scipy import ndimage
 
+
 class SMPLDataset:
     def __init__(self, path):
-        super(SMPL_Dataset, self).__init__()
+        super(SMPLDataset, self).__init__()
         print('Load data: Begin')
         self.device = torch.device('cuda')
 
         self.data_dir = path
         with open(os.path.join(self.data_dir, 'transforms_train.json'), 'r') as fp:
             meta = json.load(fp)
-        
+
         self.images = []
         self.poses = []
         self.images_lis = []
-        
+
         for frame in meta['frames']:
             fname = os.path.join(self.data_dir, frame['file_path'] + '.png')
             self.images.append(imageio.imread(fname))
             self.images_lis.append(fname)
             self.poses.append(np.array(frame['transform_matrix']))
-        
+
         self.n_images = len(self.images)
         self.images = (np.array(self.images) / 255.).astype(np.float32)
         self.images = self.images[:, :, ::-1]
@@ -43,23 +44,25 @@ class SMPLDataset:
         self.image_pixels = self.H * self.W
 
         self.object_bbox_min = np.array([-1.01, -1.01, -1.01])
-        self.object_bbox_max = np.array([ 1.01,  1.01,  1.01])
+        self.object_bbox_max = np.array([1.01,  1.01,  1.01])
 
         self.K = np.array([
             [self.focal, 0,          0.5*self.W],
             [0,          self.focal, 0.5*self.H],
-            [0,          0,          1         ]
+            [0,          0,          1]
         ])
         self.K = torch.from_numpy(self.K).cpu()
 
         print('Load data: End')
-    
+
     def gen_rays_silhouettes(self, pose, max_ray_num, mask):
         if mask.sum() == 0:
             return self.gen_rays_pose(pose, resolution_level=4)
         struct = ndimage.generate_binary_structure(2, 2)
-        dilated_mask = ndimage.binary_dilation(mask, structure=struct, iterations=10).astype(np.int32)
-        current_ratio = dilated_mask.sum() / float(mask.shape[0] * mask.shape[1])
+        dilated_mask = ndimage.binary_dilation(
+            mask, structure=struct, iterations=10).astype(np.int32)
+        current_ratio = dilated_mask.sum(
+        ) / float(mask.shape[0] * mask.shape[1])
         W = H = min(self.H, int(np.sqrt(max_ray_num / current_ratio)))
         tx = torch.linspace(0, self.W - 1, W)
         ty = torch.linspace(0, self.H - 1, H)
@@ -69,7 +72,8 @@ class SMPLDataset:
         p = torch.stack([(pixels_x - self.K[0][2]) / self.K[0][0],
                          -(pixels_y - self.K[1][2]) / self.K[1][1],
                          -torch.ones_like(pixels_x)], -1).float()
-        rays_v = p / torch.linalg.norm(p, ord=2, dim=-1, keepdim=True)  # W, H, 3
+        rays_v = p / torch.linalg.norm(p, ord=2,
+                                       dim=-1, keepdim=True)  # W, H, 3
         rays_v = torch.sum(rays_v[..., None, :] * pose[:3, :3], -1)
         rays_o = pose[None, None, :3, 3].expand(rays_v.shape)  # W, H, 3
         resized_dilated_mask = torch.nn.functional.interpolate(
@@ -92,7 +96,8 @@ class SMPLDataset:
         p = torch.stack([(pixels_x - self.K[0][2]) / self.K[0][0],
                          -(pixels_y - self.K[1][2]) / self.K[1][1],
                          -torch.ones_like(pixels_x).to(self.device)], -1).float()
-        rays_v = p / torch.linalg.norm(p, ord=2, dim=-1, keepdim=True)  # W, H, 3
+        rays_v = p / torch.linalg.norm(p, ord=2,
+                                       dim=-1, keepdim=True)  # W, H, 3
         rays_v = torch.sum(rays_v[..., None, :] * pose[:3, :3], -1)
         rays_o = pose[None, None, :3, 3].expand(rays_v.shape)  # W, H, 3
         return rays_o, rays_v
@@ -110,11 +115,14 @@ class SMPLDataset:
         p = torch.stack([(pixels_x - self.K[0][2]) / self.K[0][0],
                          -(pixels_y - self.K[1][2]) / self.K[1][1],
                          -torch.ones_like(pixels_x)], -1).float()
-        rays_v = p / torch.linalg.norm(p, ord=2, dim=-1, keepdim=True)  # W, H, 3
+        rays_v = p / torch.linalg.norm(p, ord=2,
+                                       dim=-1, keepdim=True)  # W, H, 3
         rays_v = rays_v.to(self.device)
         # rays_v = torch.matmul(self.poses[img_idx, None, None, :3, :3], rays_v[:, :, :, None]).squeeze()  # W, H, 3
-        rays_v = torch.sum(rays_v[..., None, :] * self.poses[img_idx, :3, :3], -1)
-        rays_o = self.poses[img_idx, None, None, :3, 3].expand(rays_v.shape)  # W, H, 3
+        rays_v = torch.sum(rays_v[..., None, :] *
+                           self.poses[img_idx, :3, :3], -1)
+        rays_o = self.poses[img_idx, None, None,
+                            :3, 3].expand(rays_v.shape)  # W, H, 3
         return rays_o, rays_v
 
     def gen_random_rays_at(self, img_idx, batch_size):
@@ -128,11 +136,15 @@ class SMPLDataset:
         p = torch.stack([(pixels_x - self.K[0][2]) / self.K[0][0],
                          -(pixels_y - self.K[1][2]) / self.K[1][1],
                          -torch.ones_like(pixels_x)], -1).float()
-        rays_v = p / torch.linalg.norm(p, ord=2, dim=-1, keepdim=True)    # batch_size, 3
+        # batch_size, 3
+        rays_v = p / torch.linalg.norm(p, ord=2, dim=-1, keepdim=True)
         # rays_v = torch.matmul(self.poses[img_idx, None, :3, :3], rays_v[:, :, None]).squeeze()  # batch_size, 3
-        rays_v = torch.sum(rays_v[..., None, :] * self.poses[img_idx, :3, :3], -1)
-        rays_o = self.poses[img_idx, None, :3, 3].expand(rays_v.shape) # batch_size, 3
-        return torch.cat([rays_o.cpu(), rays_v.cpu(), color, mask[:, :1]], dim=-1).cuda()    # batch_size, 10
+        rays_v = torch.sum(rays_v[..., None, :] *
+                           self.poses[img_idx, :3, :3], -1)
+        rays_o = self.poses[img_idx, None, :3, 3].expand(
+            rays_v.shape)  # batch_size, 3
+        # batch_size, 10
+        return torch.cat([rays_o.cpu(), rays_v.cpu(), color, mask[:, :1]], dim=-1).cuda()
 
     def near_far_from_sphere(self, rays_o, rays_d, is_sphere=False):
         # if not is_sphere:
