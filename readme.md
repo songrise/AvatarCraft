@@ -74,8 +74,8 @@ python render_canonical.py --weights_path path/to/generated_avatar.pth.tar --exp
 
 ## Avatar Articulation
 <div style="display: flex; justify-content: center;">
-  <img src="asset/vault.gif" style="width: 25%; margin-right: 10px;">
-  <img src="asset/reshape.gif" style="width: 25%; margin-left: 10px;">
+  <img src="asset/vault.gif" style="width: 150px; margin-right: 10px;">
+  <img src="asset/reshape.gif" style="width: 150px; margin-left: 10px;">
 </div>
 
 Once you have generated the canonical avatar, you can articulate it with the SMPL parameters. 
