@@ -42,7 +42,6 @@ def main(opt):
         shape_to[0, 1] = -2.0
 
     world_verts, Ts, n_frames = calc_local_trans(
-        rest_pose="data/stand_pose.npy",  # !HARDCODED Jan 10:
         render_type=opt.render_type,
         poses=pose_seq,
         shape_from=shape_from,
@@ -125,14 +124,11 @@ def main(opt):
         f'gif saved: {os.path.join("./demo", "test_views", opt.exp_name, f"{opt.exp_name}.gif")}')
 
 
-def calc_local_trans(scale=1, rest_pose=None, render_type: str = "animate", poses=None, shape_from=None, shape_to=None, n_interp=10, max_frames=100):
+def calc_local_trans(scale=1, render_type: str = "animate", poses=None, shape_from=None, shape_to=None, n_interp=10, max_frames=100):
     """
     generate a sequence of SMPL mesh and inverse transformation for warping the canonical NeuS.
     """
 
-    if rest_pose is not None:
-        with open(rest_pose, 'rb') as f:
-            rest_pose = np.load(f).astype(np.float32)
 
     device = torch.device('cpu')
     body_model = SMPL(
@@ -144,7 +140,6 @@ def calc_local_trans(scale=1, rest_pose=None, render_type: str = "animate", pose
     world_verts = []
     Ts = []
 
-    rest_pose[:, 0] = 0.0  # manually set the root joint to be 0
 
     # interpolation
     zero_shape = np.zeros((1, 10)).astype(np.float32)
