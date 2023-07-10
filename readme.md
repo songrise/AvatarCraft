@@ -37,9 +37,10 @@ mkdir ckpts
 ## Data Setup
 [**Compulsory**] Register and download the [SMPL](https://smpl.is.tue.mpg.de/) model, put it under `./data` path:
 ```
-data
-  |-- smplx
-      |-- smpl
+data/
+  |-- smplx/
+      |-- smpl_uv.obj
+      |-- smpl/
             |-- SMPL_NEUTRAL.pkl
 ```
 
