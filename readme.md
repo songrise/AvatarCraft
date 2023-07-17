@@ -14,7 +14,9 @@
 Neural implicit fields are powerful for representing 3D scenes and generating high-quality novel views, but it re mains challenging to use such implicit representations for creating a 3D human avatar with a specific identity and artistic style that can be easily animated. Our proposed method, AvatarCraft, addresses this challenge by using diffusion models to guide the learning of geometry and texture for a neural avatar based on a single text prompt. We care fully design the optimization of neural implicit fields using diffusion models, including a coarse-to-fine multi-bounding box training strategy, shape regularization, and diffusion- based constraints, to produce high-quality geometry and texture. Additionally, we make the human avatar animatable by deforming the neural implicit field with an explicit warping field that maps the target human mesh to a template human mesh, both represented using parametric human models. This simplifies the animation and reshaping of the generated avatar by controlling pose and shape parameters. Extensive experiments on various text descriptions show that AvatarCraft is effective and robust in creating human avatars and rendering novel views, poses, and shapes.
 <p>
 
-[**Update**] :fire: Jun 2022: Code for avatar creation and articulation is released. 
+[**Update**] :fire: Jun 2023: Code for avatar creation and articulation is released. 
+
+:fire: Jul 2023: Our paper is accepted to present at ICCV 2023!!! 
 
 
 ## Environment Setup
@@ -53,9 +55,8 @@ huggingface-cli login
 [**Compulsory**] Download our pretrained [bare SMPL ckpt](https://drive.google.com/file/d/1GRfc9fbiBLTqEP6dURaReyERT-Tzk127/view?usp=share_link), and put it into `./ckpts` path.
 
 
-<p align="justify">
+
 [**Optional**] If you would like to animate the generated avatar, you need a sequence of SMPL poses. In our project, we use [AMASS](https://amass.is.tue.mpg.de/) dataset (SMPL+H) to generate the poses. Specifically, we have used the SFU subset in our paper and video. We can't redistribute the dataset, but we provide a [script](utils/convert_amass.py) to for you to convert the AMASS format to ours. You need to download and process by yourself. Alternatively, you may also use your own SMPL pose sequence.
-</p>
 
 ## Avatar Creation
 <p align="justify">
