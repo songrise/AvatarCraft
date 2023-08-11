@@ -84,13 +84,13 @@ Once you have generated the canonical avatar, you can articulate it with the SMP
 
 For animation, use the following command, where `--poseseq_path` is the path to the pose sequence processed by our [script](utils/convert_amass.py).
 ```
-python render_wrap.py --weights_path path/to/generated_avatar.pth.tar --exp_name "hulk" --render_type animate --render_h 256 --render_w 256 --poseseq_path path/to/pose_sequence.pkl
+python render_warp.py --weights_path path/to/generated_avatar.pth.tar --exp_name "hulk" --render_type animate --render_h 256 --render_w 256 --poseseq_path path/to/pose_sequence.pkl
 ```
 
 For reshaping, use the following command. Specifically, the following script interpolate the betas between two avatars. In the script we hardcoded to control the second principal component of the betas (BMI) like the gif. You can change the control to be any other principal component(s) by passing the corresponding betas to `--shape_from_path` and `--shape_to_path`. 
 
 ```
-python render_wrap.py --weights_path path/to/generated_avatar.pth.tar --exp_name "hulk" --render_type interp_pose --render_h 256 --render_w 256 --shape_from_path optional\betas.pkl --shape_to_path optional\betas2.pkl
+python render_warp.py --weights_path path/to/generated_avatar.pth.tar --exp_name "hulk" --render_type interp_pose --render_h 256 --render_w 256 --shape_from_path optional\betas.pkl --shape_to_path optional\betas2.pkl
 ```
 
 
